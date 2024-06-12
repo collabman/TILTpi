@@ -4760,7 +4760,7 @@
         "type": "function",
         "z": "a564595f.642818",
         "name": "Send Tilt Colors",
-        "func": "//check if system starting up and Tilts are in range.\nif (msg.payload === \"boot\"){\ncontext.set('startup',true);\n}else{\ncontext.set('tilt',true);\n}\n//contine startup if Tilt detected\nif (context.get('startup') && context.get('tilt')){\n//initializes settings file for each color\nvar colors = [\"red\",\"green\",\"black\",\"purple\",\"orange\",\"blue\",\"yellow\",\"pink\"];\nvar arrayLength = colors.length;\nfor (var i = 0; i < arrayLength; i++) {\n    node.send({filename:\"/boot/cloud_log_\" + colors[i] + \".json\"});\n}\ncontext.set('startup',false);\n}",
+        "func": "//check if system starting up and Tilts are in range.\nif (msg.payload === \"boot\"){\ncontext.set('startup',true);\n}else{\ncontext.set('tilt',true);\n}\n//contine startup if Tilt detected\nif (context.get('startup') && context.get('tilt')){\n//initializes settings file for each color\nvar colors = [\"red\",\"green\",\"black\",\"purple\",\"orange\",\"blue\",\"yellow\",\"pink\"];\nvar arrayLength = colors.length;\nfor (var i = 0; i < arrayLength; i++) {\n    node.send({filename:\"/boot/firmware/cloud_log_\" + colors[i] + \".json\"});\n}\ncontext.set('startup',false);\n}",
         "outputs": 1,
         "noerr": 0,
         "x": 2609,
@@ -9819,7 +9819,7 @@
         "to": "",
         "reg": false,
         "x": 680,
-        "y": 4860,
+        "y": 4740,
         "wires": [
             []
         ]
@@ -10110,6 +10110,142 @@
             ],
             [
                 "7aaa8c05.fb2704"
+            ]
+        ]
+    },
+    {
+        "id": "d9b0a4ac.d01fc8",
+        "type": "inject",
+        "z": "a564595f.642818",
+        "name": "Check for WPA Supplicant",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "",
+        "x": 160,
+        "y": 4880,
+        "wires": [
+            [
+                "38b78449.58c06c"
+            ]
+        ]
+    },
+    {
+        "id": "38b78449.58c06c",
+        "type": "file in",
+        "z": "a564595f.642818",
+        "name": "",
+        "filename": "/boot/firmware/wpa_supplicant.conf",
+        "format": "lines",
+        "chunk": false,
+        "sendError": false,
+        "x": 450,
+        "y": 4880,
+        "wires": [
+            [
+                "2e5e0c4c.5681d4"
+            ]
+        ]
+    },
+    {
+        "id": "fbba8479.0d5688",
+        "type": "exec",
+        "z": "a564595f.642818",
+        "command": "sudo raspi-config nonint do_wifi_ssid_passphrase",
+        "addpay": true,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "oldrc": false,
+        "name": "Set WiFi Cred",
+        "x": 1120,
+        "y": 4860,
+        "wires": [
+            [],
+            [],
+            [
+                "66504390.89585c",
+                "480f27a4.8cdbc8"
+            ]
+        ]
+    },
+    {
+        "id": "2e5e0c4c.5681d4",
+        "type": "function",
+        "z": "a564595f.642818",
+        "name": "process wpa_supplicant.conf",
+        "func": "if (msg.payload.indexOf('ssid') > -1){\n    msg.payload = msg.payload.split('=')[1];\n    context.set('ssid', msg.payload);\n}\nelse if (msg.payload.indexOf('psk') > -1) {\n    msg.payload = msg.payload.split('=')[1];\n    msg.payload = [context.get('ssid')||'ssid-not-specified', msg.payload];\n    msg.payload = msg.payload[0] + ' ' + msg.payload[1] + ' 0 0';\n    return msg;\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 760,
+        "y": 4880,
+        "wires": [
+            [
+                "66504390.89585c",
+                "fbba8479.0d5688"
+            ]
+        ]
+    },
+    {
+        "id": "66504390.89585c",
+        "type": "debug",
+        "z": "a564595f.642818",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 1670,
+        "y": 4960,
+        "wires": []
+    },
+    {
+        "id": "cd3bfaef.fab628",
+        "type": "exec",
+        "z": "a564595f.642818",
+        "command": "sudo rm /boot/firmware/wpa_supplicant.conf",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "oldrc": false,
+        "name": "Remove Config File",
+        "x": 1530,
+        "y": 4840,
+        "wires": [
+            [],
+            [],
+            [
+                "66504390.89585c"
+            ]
+        ]
+    },
+    {
+        "id": "480f27a4.8cdbc8",
+        "type": "switch",
+        "z": "a564595f.642818",
+        "name": "check success",
+        "property": "payload.code",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "0",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 1340,
+        "y": 4840,
+        "wires": [
+            [
+                "cd3bfaef.fab628"
             ]
         ]
     }
