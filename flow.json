@@ -9879,7 +9879,7 @@
         "fieldType": "msg",
         "format": "handlebars",
         "syntax": "mustache",
-        "template": "@lxpanel --profile LXDE-pi\n@pcmanfm --desktop --profile LXDE-pi\n@chromium-browser file:///home/pi/Desktop/tiltpi.html --start-fullscreen --incognito\n@xset s {{payload}} {{payload}}\n@unclutter -idle 0.5 -root",
+        "template": "@lxpanel --profile LXDE-pi\n@pcmanfm --desktop --profile LXDE-pi\n@chromium-browser http://localhost:1880/ui --start-fullscreen --incognito\n@xset s {{payload}} {{payload}}\n@unclutter -idle 0.5 -root",
         "output": "str",
         "x": 1638.752067565918,
         "y": 4280.54296875,
